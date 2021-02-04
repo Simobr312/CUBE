@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "cstdlib": "cpp",
-        "cmath": "cpp",
-        "xlocale": "cpp"
-    }
-}
