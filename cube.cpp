@@ -32,7 +32,7 @@ void Line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x
 int main() {
     
     printf("Deloped by Simone Riccio\n");
-    printf("A rotating cube rendered in 3D with ascii\n")
+    printf("A rotating cube rendered in 3D with ascii\n");
 
     bool grid[dimX][dimY]; 
     float r;
