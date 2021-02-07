@@ -10,9 +10,18 @@ const int dimY = dimX / 2;
 const char* glyph = " *";
 const int default_originX = dimX / 2, default_originY = dimX / 2;
 
+const float cube_spigol = 30.f;
 const int vertices_of_cube = 8;
 const int point_lenght = 3; 
-struct Point3D { float x, y, z; };
+
+struct Point3D {
+    union {
+        struct {
+            float x, y, z; 
+        };
+        float V[vertices_of_cube];
+    };
+};
 
 float OrthogonalProjectionMatrix[][point_lenght] = {
     {1.f, 0.f, 0.f},
@@ -27,8 +36,6 @@ void CalculateTime();
 void Clear(bool grid[dimX][dimY]);
 void Render(bool grid[dimX][dimY]);
 
-void Point3DToVector(Point3D point, float converted[]);
-void VectorToPoint3D(float point[], Point3D& converted );
 void MultiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]);
 
 void InitCube(Point3D cube[vertices_of_cube]);
@@ -84,21 +91,18 @@ int main() {
 
         for(int i = 0 ; i < vertices_of_cube ; ++i) {
             Point3D& point = cube[i];
-            float point_vec[point_lenght];
-
-            Point3DToVector(point, point_vec);
             
-            float rotatedX_point_vec[point_lenght];
-            MultiplyMatrixVec(point_vec         , RotationMatrixX, rotatedX_point_vec);
+            Point3D rotatedX_point;;
+            MultiplyMatrixVec(point.V       , RotationMatrixX, rotatedX_point.V);
 
-            float rotatedY_point_vec[point_lenght];
-            MultiplyMatrixVec(rotatedX_point_vec, RotationMatrixY, rotatedY_point_vec);
+            Point3D rotatedY_point;
+            MultiplyMatrixVec(rotatedX_point.V, RotationMatrixY, rotatedY_point.V);
 
-            float rotatedZ_point_vec[point_lenght];
-            MultiplyMatrixVec(rotatedY_point_vec, RotationMatrixZ, rotatedZ_point_vec);
+            Point3D rotatedZ_point;
+            MultiplyMatrixVec(rotatedY_point.V, RotationMatrixZ, rotatedZ_point.V);
 
-            float distance = 25.f; //Maybe I have to change the origin of the cartesian space in order to resolve the weak prespective.
-            float prospRatio = 10.f / (distance - rotatedZ_point_vec[2]);
+            float distance = 200.f; //Maybe I have to change the origin of the cartesian space in order to resolve the weak prespective.
+            float prospRatio = 1.f / (distance - rotatedZ_point.z);
             //printf("%f ",  prospRatio);
             float WeakProjectionMatrix[][point_lenght] = {
                 { prospRatio        , 0.f                 , 0.f              },
@@ -106,10 +110,13 @@ int main() {
                 { 0.f               , 0.f                 , 0.f              }
             };
 
-            float projected_point_vec[point_lenght];
-            MultiplyMatrixVec(rotatedZ_point_vec, OrthogonalProjectionMatrix, projected_point_vec);
-            VectorToPoint3D(projected_point_vec, projected_points[i]);
-            SetMatrixPoints(grid, projected_point_vec);    
+            Point3D projected_point;
+            MultiplyMatrixVec(rotatedZ_point.V, OrthogonalProjectionMatrix, projected_point.V);
+            SetMatrixPoints(grid, projected_point.V);  
+
+            projected_points[i].x = projected_point.x;
+            projected_points[i].y = projected_point.y;
+            projected_points[i].z = projected_point.z;
         }
 
         for(int i = 0 ; i < vertices_of_cube / 2 ; ++i) {
@@ -146,15 +153,6 @@ void Render(bool output[dimX][dimY]) {
     }
 }
 
-void Point3DToVector(Point3D point, float converted[]) {
-    converted[0] = point.x;
-    converted[1] = point.y;
-    converted[2] = point.z;
-}
-
-void VectorToPoint3D(float point[], Point3D& converted ) {
-    converted = {point[0], point[1], point[2]};
-}
 
 void MultiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]) {
     for(int i = 0 ; i < point_lenght ; ++i) {
@@ -169,7 +167,7 @@ void MultiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]) {
 }
 
 void InitCube(Point3D cube[vertices_of_cube]) {
-    float coord = 15.;
+    float coord = cube_spigol / 2.f;
     cube[0] = { coord , -coord,  coord};
     cube[1] = { coord ,  coord,  coord};
     cube[2] = {-coord ,  coord,  coord};
