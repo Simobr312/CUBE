@@ -12,12 +12,12 @@
 
 const double pi = 3.1415926535;
 
-const int dimX = 50;
+const int dimX = 100;
 const int dimY = dimX / 2;
 const char* glyph = " *";
 const int default_originX = dimX / 2, default_originY = dimX / 2;
 
-const float cube_spigol = 30.f;
+const float cube_spigol = 60.f;
 const int vertices_of_cube = 8;
 const int point_lenght = 3; 
 
@@ -157,9 +157,9 @@ void Render(bool output[dimX][dimY]) {
     system(CLEAR);
     for(int y = 0 ; y < dimY ; ++y) {
         for(int x = 0 ; x < dimX ; ++x) {
-            putwchar(glyph[output[x][y]]);
+            putchar(glyph[output[x][y]]);
         }
-        putwchar('\n');
+        putchar('\n');
     }
     fflush(stdout);
 }
