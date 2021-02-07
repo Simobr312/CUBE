@@ -14,6 +14,12 @@ const int vertices_of_cube = 8;
 const int point_lenght = 3; 
 struct Point3D { float x, y, z; };
 
+float OrthogonalProjectionMatrix[][point_lenght] = {
+    {1.f, 0.f, 0.f},
+    {0.f, 1.f, 0.f},
+    {0.f, 0.f, 0.f},
+}; 
+
 clock_t initTime, oldTime;
 double dt, elapsedTime;
 void CalculateTime();
@@ -30,7 +36,6 @@ void SetMatrixPoints(bool grid[dimX][dimY], float point[point_lenght]);
 void Line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x2, float y2 );
 
 int main() {
-    
     printf("Deloped by Simone Riccio\n");
     printf("A rotating cube rendered in 3D with ascii\n");
 
@@ -60,21 +65,21 @@ int main() {
         Point3D projected_points[vertices_of_cube];
 
         float RotationMatrixX[][point_lenght] = {
-            { 1.                , 0.                , 0.                },
-            { 0.                , (float)cos(AngleX),-(float)sin(AngleX)},
-            { 0.                , (float)sin(AngleX), (float)cos(AngleX)}
+            { 1.f               , 0.f               , 0.f               },
+            { 0.f               , (float)cos(AngleX),-(float)sin(AngleX)},
+            { 0.f               , (float)sin(AngleX), (float)cos(AngleX)}
         };
 
         float RotationMatrixY[][point_lenght] = {
-            { (float)cos(AngleY) , 0.               , (float)sin(AngleY)},
-            { 0.                 , 1                , 0                 },
-            {-(float)sin(AngleY) , 0                , (float)cos(AngleY)}
+            { (float)cos(AngleY) , 0.f              , (float)sin(AngleY)},
+            { 0.f                , 1.f              , 0.f                },
+            {-(float)sin(AngleY) , 0.f              , (float)cos(AngleY)}
         };
 
         float RotationMatrixZ[][point_lenght] = {
-            { (float)cos(AngleZ),-(float)sin(AngleZ)  , 0                 },
-            { (float)sin(AngleZ), (float)cos(AngleZ)  , 0                 },
-            { 0                 , 0                   , 1                 }
+            { (float)cos(AngleZ),-(float)sin(AngleZ)  , 0.f              },
+            { (float)sin(AngleZ), (float)cos(AngleZ)  , 0.f              },
+            { 0.f               , 0.f                 , 1.f              }
         };
 
         for(int i = 0 ; i < vertices_of_cube ; ++i) {
@@ -92,19 +97,19 @@ int main() {
             float rotatedZ_point_vec[point_lenght];
             MultiplyMatrixVec(rotatedY_point_vec, RotationMatrixZ, rotatedZ_point_vec);
 
-            float distance = 0.1f;
-            float prospective = 1.f / (distance - point.z);
-            float OrthogonalProjectionMatrix[][point_lenght] = {
-                {1.f, 0.f, 0.f},
-                {0.f, 1.f, 0.f},
-                {0.f, 0.f, 0.f},
-            }; 
+            float distance = 25.f; //Maybe I have to change the origin of the cartesian space in order to resolve the weak prespective.
+            float prospRatio = 10.f / (distance - rotatedZ_point_vec[2]);
+            //printf("%f ",  prospRatio);
+            float WeakProjectionMatrix[][point_lenght] = {
+                { prospRatio        , 0.f                 , 0.f              },
+                { 0.f               , prospRatio          , 0.f              },
+                { 0.f               , 0.f                 , 0.f              }
+            };
 
             float projected_point_vec[point_lenght];
             MultiplyMatrixVec(rotatedZ_point_vec, OrthogonalProjectionMatrix, projected_point_vec);
             VectorToPoint3D(projected_point_vec, projected_points[i]);
-            SetMatrixPoints(grid, projected_point_vec);
-            
+            SetMatrixPoints(grid, projected_point_vec);    
         }
 
         for(int i = 0 ; i < vertices_of_cube / 2 ; ++i) {
