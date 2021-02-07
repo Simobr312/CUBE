@@ -138,8 +138,8 @@ int main() {
 
 void Clear(bool grid[dimX][dimY]) {
     for(int y = 0 ; y < dimY ; ++y) {
-            for(int x = 0 ; x < dimX ; ++x) {
-                grid[x][y] = false;
+        for(int x = 0 ; x < dimX ; ++x) {
+            grid[x][y] = false;
         }
     }   
 }
