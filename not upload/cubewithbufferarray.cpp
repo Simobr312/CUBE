@@ -3,13 +3,6 @@
 #include <cmath>
 #include <ctime>
 
-#ifdef __linux__ 
-    #define CLEAR "clear"
-#elif _WIN32
-    #define CLEAR "cls"
-#else
-#endif
-
 const double pi = 3.1415926535;
 
 const int dimX = 50;
@@ -42,18 +35,19 @@ void CalculateTime();
 
 void Clear(bool grid[dimX][dimY]);
 void Render(bool grid[dimX][dimY]);
+void Render(char* buffer_array);
 
 void MultiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]);
 
 void InitCube(Point3D cube[vertices_of_cube]);
 void SetMatrixPoints(bool grid[dimX][dimY], float point[point_lenght]);
+void PutsPoint(char* buffer_array, Point3D& point);
 void Line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x2, float y2 );
 
 int main() {
     printf("Deloped by Simone Riccio\n");
     printf("A rotating cube rendered in 3D with ascii\n");
-    char buffer[dimX * dimY];
-
+    
     bool grid[dimX][dimY]; 
     float r;
     double AngleX = 0.   , AngleY = 0.   , AngleZ = 0.;
@@ -71,12 +65,14 @@ int main() {
     Point3D cube[vertices_of_cube];
     InitCube(cube);
 
+    char buffer[dimX * dimY + dimY];   
     setbuf(stdout, buffer);
 
     bool isRunning = true;
     while(isRunning) {
         CalculateTime();
 
+        char buffer_array[dimX * dimY + 10] = {' '};
         Clear(grid);
 
         Point3D projected_points[vertices_of_cube];
@@ -122,7 +118,8 @@ int main() {
 
             Point3D projected_point;
             MultiplyMatrixVec(rotatedZ_point.V, OrthogonalProjectionMatrix, projected_point.V);
-            SetMatrixPoints(grid, projected_point.V);  
+            //SetMatrixPoints(grid, projected_point.V);  
+            PutsPoint(buffer_array, projected_point); 
 
             projected_points[i].x = projected_point.x;
             projected_points[i].y = projected_point.y;
@@ -139,7 +136,9 @@ int main() {
         AngleY += AngleVelY * dt;
         AngleZ += AngleVelZ * dt;
 
-        Render(grid);
+        //Render(grid);
+        Render(buffer_array);
+
     }
 
     return 0;
@@ -154,16 +153,26 @@ void Clear(bool grid[dimX][dimY]) {
 }
 
 void Render(bool output[dimX][dimY]) {
-    system(CLEAR);
+    system("cls");
     for(int y = 0 ; y < dimY ; ++y) {
         for(int x = 0 ; x < dimX ; ++x) {
-            putwchar(glyph[output[x][y]]);
+            putchar(glyph[output[x][y]]);
         }
-        putwchar('\n');
+        putchar('\n');
     }
     fflush(stdout);
 }
 
+void Render(char* buffer_array) {
+    system("cls");
+    for(int y = 0 ; y < dimY ; y++) {
+        buffer_array[dimX + y * dimX + 1] = '\n';
+    }
+    for(int i = 0 ; i < dimX * (dimY + 1) ; ++i) {
+        putchar(buffer_array[i]);
+    }
+    fflush(stdout);
+}
 
 void MultiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]) {
     for(int i = 0 ; i < point_lenght ; ++i) {
@@ -175,6 +184,11 @@ void MultiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]) {
             result[i] += vec[k] * mat[k][i];
         }
     }
+}
+
+void PutsPoint(char* buffer_array, Point3D& point) {
+    int x = round(point.x), y = round(point.y);
+    buffer_array[x + y * (dimX + 1)] = glyph[1];
 }
 
 void InitCube(Point3D cube[vertices_of_cube]) {
