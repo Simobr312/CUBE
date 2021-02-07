@@ -93,7 +93,7 @@ int main() {
             Point3D& point = cube[i];
             
             Point3D rotatedX_point;;
-            MultiplyMatrixVec(point.V       , RotationMatrixX, rotatedX_point.V);
+            MultiplyMatrixVec(point.V         , RotationMatrixX, rotatedX_point.V);
 
             Point3D rotatedY_point;
             MultiplyMatrixVec(rotatedX_point.V, RotationMatrixY, rotatedY_point.V);
