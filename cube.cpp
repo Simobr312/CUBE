@@ -45,6 +45,7 @@ void Line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x
 int main() {
     printf("Deloped by Simone Riccio\n");
     printf("A rotating cube rendered in 3D with ascii\n");
+    char buffer[dimX * dimY];
 
     bool grid[dimX][dimY]; 
     float r;
@@ -63,6 +64,8 @@ int main() {
     Point3D cube[vertices_of_cube];
     InitCube(cube);
 
+    setbuf(stdout, buffer);
+
     bool isRunning = true;
     while(isRunning) {
         CalculateTime();
@@ -79,7 +82,7 @@ int main() {
 
         float RotationMatrixY[][point_lenght] = {
             { (float)cos(AngleY) , 0.f              , (float)sin(AngleY)},
-            { 0.f                , 1.f              , 0.f                },
+            { 0.f                , 1.f              , 0.f               },
             {-(float)sin(AngleY) , 0.f              , (float)cos(AngleY)}
         };
 
@@ -129,7 +132,6 @@ int main() {
         AngleY += AngleVelY * dt;
         AngleZ += AngleVelZ * dt;
 
-        system("cls");
         Render(grid);
     }
 
@@ -147,10 +149,12 @@ void Clear(bool grid[dimX][dimY]) {
 void Render(bool output[dimX][dimY]) {
     for(int y = 0 ; y < dimY ; ++y) {
         for(int x = 0 ; x < dimX ; ++x) {
-            putchar(glyph[output[x][y]]);
+            putwchar(glyph[output[x][y]]);
         }
-        putchar('\n');
+        putwchar('\n');
     }
+    puts("\x1b[H");
+    fflush(stdout);
 }
 
 
