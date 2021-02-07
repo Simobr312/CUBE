@@ -3,7 +3,7 @@
 #include <cmath>
 #include <ctime>
 
-const double pi = 355./113.;
+const double pi = 3.1415926535;
 
 const int dimX = 50;
 const int dimY = dimX / 2;
