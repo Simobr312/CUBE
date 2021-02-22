@@ -26,7 +26,7 @@ struct Point3D {
         struct {
             float x, y, z; 
         };
-        float V[vertices_of_cube];
+        float V[point_lenght];
     };
 };
 
