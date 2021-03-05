@@ -1,7 +1,8 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <ctime>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <stdbool.h>
 
 #ifdef __linux__ 
     #define CLEAR "clear"
@@ -10,25 +11,30 @@
 #else
 #endif
 
-const double pi = 3.1415926535;
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
 
-const int dimX = 100;
-const int dimY = dimX / 2;
-const char* glyph = " *";
+#define pi 3.1415926535
+
+#define dimX 100
+#define dimY dimX / 2
+
+#define glyph " *"
+
+#define cube_spigol 60.f
+#define vertices_of_cube 8
+#define point_lenght 3 
+
 const int default_originX = dimX / 2, default_originY = dimX / 2;
 
-const float cube_spigol = 60.f;
-const int vertices_of_cube = 8;
-const int point_lenght = 3; 
-
-struct Point3D {
+typedef struct Point3D {
     union {
         struct {
             float x, y, z; 
         };
         float V[point_lenght];
     };
-};
+} point_t;
 
 float orthogonalProjectionMatrix[][point_lenght] = {
     {1.f, 0.f, 0.f},
@@ -45,12 +51,12 @@ void render(bool grid[dimX][dimY]);
 
 void multiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]);
 
-void initCube(Point3D cube[vertices_of_cube]);
+void initCube(point_t cube[vertices_of_cube]);
 void setMatrixPoints(bool grid[dimX][dimY], float point[point_lenght]);
 void line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x2, float y2 );
 
 int main() {
-    printf("Deloped by Simone Riccio\n");
+    printf("Developed by Simone Riccio\n");
     printf("A rotating cube rendered in 3D with ascii\n");
     char buffer[dimX * dimY];
 
@@ -68,7 +74,7 @@ int main() {
     angleVelY = angleVelY * pi / 180.;
     angleVelZ = angleVelZ * pi / 180.;
 
-    Point3D cube[vertices_of_cube];
+    point_t cube[vertices_of_cube];
     initCube(cube);
 
     setbuf(stdout, buffer);
@@ -79,7 +85,7 @@ int main() {
 
         clear(grid);
 
-        Point3D projected_points[vertices_of_cube];
+        point_t projected_points[vertices_of_cube];
 
         float rotationMatrixX[][point_lenght] = {
             { 1.f               , 0.f               , 0.f               },
@@ -100,15 +106,15 @@ int main() {
         };
 
         for(int i = 0 ; i < vertices_of_cube ; ++i) {
-            Point3D& point = cube[i];
+            point_t* point = &cube[i];
             
-            Point3D rotatedX_point;;
-            multiplyMatrixVec(point.V         , rotationMatrixX, rotatedX_point.V);
+            point_t rotatedX_point;;
+            multiplyMatrixVec(point->V         , rotationMatrixX, rotatedX_point.V);
 
-            Point3D rotatedY_point;
+            point_t rotatedY_point;
             multiplyMatrixVec(rotatedX_point.V, rotationMatrixY, rotatedY_point.V);
 
-            Point3D rotatedZ_point;
+            point_t rotatedZ_point;
             multiplyMatrixVec(rotatedY_point.V, rotationMatrixZ, rotatedZ_point.V);
 
             float distance = 200.f; //Maybe I have to change the origin of the cartesian space in order to resolve the weak prespective.
@@ -120,7 +126,7 @@ int main() {
                 { 0.f               , 0.f                 , 0.f              }
             };
 
-            Point3D projected_point;
+            point_t projected_point;
             multiplyMatrixVec(rotatedZ_point.V, orthogonalProjectionMatrix, projected_point.V);
             setMatrixPoints(grid, projected_point.V);  
 
@@ -177,16 +183,16 @@ void multiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]) {
     }
 }
 
-void initCube(Point3D cube[vertices_of_cube]) {
+void initCube(point_t cube[vertices_of_cube]) {
     float coord = cube_spigol / 2.f;
-    cube[0] = { coord , -coord,  coord};
-    cube[1] = { coord ,  coord,  coord};
-    cube[2] = {-coord ,  coord,  coord};
-    cube[3] = {-coord , -coord,  coord};
-    cube[4] = { coord , -coord, -coord};
-    cube[5] = { coord ,  coord, -coord};
-    cube[6] = {-coord ,  coord, -coord};
-    cube[7] = {-coord , -coord, -coord};
+    cube[0] = (point_t){ .x =  coord, .y = -coord, .z =  coord};
+    cube[1] = (point_t){ .x =  coord, .y =  coord, .z =  coord};
+    cube[2] = (point_t){ .x = -coord, .y =  coord, .z =  coord};
+    cube[3] = (point_t){ .x = -coord, .y = -coord, .z =  coord};
+    cube[4] = (point_t){ .x =  coord, .y = -coord, .z = -coord};
+    cube[5] = (point_t){ .x =  coord, .y =  coord, .z = -coord};
+    cube[6] = (point_t){ .x = -coord, .y =  coord, .z = -coord};
+    cube[7] = (point_t){ .x = -coord, .y = -coord, .z = -coord};
 }
 
 bool isInRange(int x, int y) { return x >= 0 && x < dimX && y >= 0 && y < dimY;}
@@ -197,9 +203,6 @@ void setMatrixPoints(bool grid[dimX][dimY], float point[point_lenght]) {
         if(isInRange(x, y)) grid[x][y] = true;
     }
 }
-
-float max(float a, float b) { return a > b ? a : b; }
-float min(float a, float b) { return a < b ? a : b; }
 
 void line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x2, float y2 ) {
 
