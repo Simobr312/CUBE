@@ -32,7 +32,7 @@ typedef struct Point3D {
         struct {
             float x, y, z; 
         };
-        float V[point_lenght];
+        float vec[point_lenght];
     };
 } point_t;
 
@@ -49,7 +49,7 @@ void calculateTime();
 void clear(bool grid[dimX][dimY]);
 void render(bool grid[dimX][dimY]);
 
-void multiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]);
+void multiplyMatrixMatrix(point_t first[vertices_of_cube], float second[point_lenght][point_lenght], point_t result[vertices_of_cube]);
 
 void initCube(point_t cube[vertices_of_cube]);
 void setMatrixPoints(bool grid[dimX][dimY], float point[point_lenght]);
@@ -105,40 +105,18 @@ int main() {
             { 0.f               , 0.f                 , 1.f              }
         };
 
-        for(int i = 0 ; i < vertices_of_cube ; ++i) {
-            point_t* point = &cube[i];
-            
-            point_t rotatedX_point;;
-            multiplyMatrixVec(point->V         , rotationMatrixX, rotatedX_point.V);
+        point_t rotatedX_points[vertices_of_cube], rotatedY_points[vertices_of_cube], rotatedZ_points[vertices_of_cube];
+        point_t trasformated_points[vertices_of_cube];
 
-            point_t rotatedY_point;
-            multiplyMatrixVec(rotatedX_point.V, rotationMatrixY, rotatedY_point.V);
-
-            point_t rotatedZ_point;
-            multiplyMatrixVec(rotatedY_point.V, rotationMatrixZ, rotatedZ_point.V);
-
-            float distance = 200.f; //Maybe I have to change the origin of the cartesian space in order to resolve the weak prespective.
-            float prospRatio = 1.f / (distance - rotatedZ_point.z);
-            //printf("%f ",  prospRatio);
-            float WeakProjectionMatrix[][point_lenght] = {
-                { prospRatio        , 0.f                 , 0.f              },
-                { 0.f               , prospRatio          , 0.f              },
-                { 0.f               , 0.f                 , 0.f              }
-            };
-
-            point_t projected_point;
-            multiplyMatrixVec(rotatedZ_point.V, orthogonalProjectionMatrix, projected_point.V);
-            setMatrixPoints(grid, projected_point.V);  
-
-            projected_points[i].x = projected_point.x;
-            projected_points[i].y = projected_point.y;
-            projected_points[i].z = projected_point.z;
-        }
+        multiplyMatrixMatrix(cube, rotationMatrixX, rotatedX_points);
+        multiplyMatrixMatrix(rotatedX_points, rotationMatrixY, rotatedY_points);
+        multiplyMatrixMatrix(rotatedY_points, rotationMatrixZ, rotatedZ_points);
+        multiplyMatrixMatrix(rotatedZ_points, orthogonalProjectionMatrix, trasformated_points);
 
         for(int i = 0 ; i < vertices_of_cube / 2 ; ++i) {
-            line(grid, default_originX, default_originY, projected_points[i].x, projected_points[i].y, projected_points[(i + 1)%4].x, projected_points[(i + 1) % 4].y );
-            line(grid, default_originX, default_originY, projected_points[i].x, projected_points[i].y, projected_points[i + 4].x, projected_points[i + 4].y );
-            line(grid, default_originX, default_originY, projected_points[i + 4].x, projected_points[i + 4].y, projected_points[(i + 1) % 4 + 4].x, projected_points[(i + 1) % 4 + 4].y );
+            line(grid, default_originX, default_originY, trasformated_points[i].x, trasformated_points[i].y, trasformated_points[(i + 1)%4].x, trasformated_points[(i + 1) % 4].y );
+            line(grid, default_originX, default_originY, trasformated_points[i].x, trasformated_points[i].y, trasformated_points[i + 4].x, trasformated_points[i + 4].y );
+            line(grid, default_originX, default_originY, trasformated_points[i + 4].x,  trasformated_points[i + 4].y, trasformated_points[(i + 1) % 4 + 4].x, trasformated_points[(i + 1) % 4 + 4].y );
         }
 
         angleX += angleVelX * dt;
@@ -170,15 +148,13 @@ void render(bool output[dimX][dimY]) {
     fflush(stdout);
 }
 
-
-void multiplyMatrixVec(float vec[], float mat[][point_lenght], float result[]) {
-    for(int i = 0 ; i < point_lenght ; ++i) {
-        result[i] = 0;
-    }
-
-    for(int i = 0 ; i < point_lenght ; ++i) {   
-        for(int k = 0 ; k < point_lenght ; ++k) {
-            result[i] += vec[k] * mat[k][i];
+void multiplyMatrixMatrix(point_t first[vertices_of_cube], float second[point_lenght][point_lenght], point_t result[vertices_of_cube]) {
+    for(int i = 0; i < vertices_of_cube; ++i ) {
+        for(int j = 0; j < point_lenght; ++j) {
+            result[i].vec[j] = 0;
+            for(int k = 0; k < point_lenght; ++k) {
+                result[i].vec[j] += first[i].vec[k] * second[k][j]; 
+            }
         }
     }
 }
