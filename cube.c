@@ -16,10 +16,11 @@
 
 #define pi 3.1415926535
 
+#define character_ratio 1/2
 #define dimX 100
-#define dimY dimX / 2
+#define dimY dimX * character_ratio
 
-#define glyph " *"
+#define glyph " *" //Change this as you want
 
 #define cube_spigol 60.f
 #define vertices_of_cube 8
@@ -175,7 +176,7 @@ bool isInRange(int x, int y) { return x >= 0 && x < dimX && y >= 0 && y < dimY;}
 
 void setMatrixPoints(bool grid[dimX][dimY], float point[point_lenght]) {
     for(int i = 0 ; i < vertices_of_cube ; ++i) {
-        int x = default_originX + round(point[0]), y = (default_originY + round(point[1])) / 2;
+        int x = default_originX + round(point[0]), y = (default_originY + round(point[1])) * character_ratio;
         if(isInRange(x, y)) grid[x][y] = true;
     }
 }
@@ -192,7 +193,7 @@ void line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x
         for(float x = xi ; x <= xf ; x += 0.1f) {
             float y = m * (x - x1) + y1;
 
-            int xp = ox + round(x), yp = (oy + round(y)) / 2;
+            int xp = ox + round(x), yp = (oy + round(y)) * character_ratio;
             
             if(isInRange(xp, yp)) grid[xp][yp] = true;
         }
@@ -203,7 +204,7 @@ void line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x
         for(float y = yi; y <= yf ; y += 0.1) {
             float x = m * (y - y1) + x1;
 
-            int xp = ox + round(x), yp = (oy + round(y)) / 2;
+            int xp = ox + round(x), yp = (oy + round(y)) * character_ratio;
 
             if(isInRange(xp, yp))
                 grid[xp][yp] = true;
@@ -216,3 +217,47 @@ void calculateTime() {
     dt = (clock() - oldTime) / (double)CLOCKS_PER_SEC;
     oldTime = clock();
 }
+/*
+                             **************************************************
+                            ****                                              ******
+                          **   *                                               **  *
+                        ***    **                                            ***   **
+                      ***       *                                          ***      *
+                    ***          *                                       ***        **
+                   **            **                                     **           *
+                 ***              *                                   ***            **
+               ***                **                                ***               *
+             ***                   *                              ***                 **
+            **                     **                            **                    **
+          ***                       *                          ***                      *
+        ***                         **                       ***                        **
+      ***                            *                     ***                           *
+     **                              **                   **                             **
+    ******************************************************                                *
+    **                                **                *                                 **
+     *                                 *                **                                 *
+     **                                 *                **                                **
+      *                                 **                *                                 *
+      **                                 *                **                                **
+       *                                 **                *                                 *
+       **                                 *                **                                **
+        *                                 **                *                                 **
+        **                                 *                **                                 *
+         *                                 **                *                                 **
+          *                                **********************************************       *
+          **                              **                  *                         *********
+           *                            ***                   **                             ***
+           **                         ***                      *                           ***
+            *                       ***                        **                        ***
+            **                     **                           **                      **
+             *                   **                              *                    **
+             **                ***                               **                 ***
+              *              ***                                  *               ***
+              **            **                                    **            ***
+               *          **                                       *           **
+               **       ***                                        **        ***
+                *     ***                                           *      ***
+                 *  ***                                             **   ***
+                 ****                                                *  **
+                  *******************************************************
+*/
