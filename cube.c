@@ -20,7 +20,7 @@
 #define dimX 100
 #define dimY dimX * character_ratio
 
-#define glyph "* " //Change this as you want
+#define glyph " *" //Change this as you want
 
 #define cube_spigol 60.f
 #define vertices_of_cube 8
