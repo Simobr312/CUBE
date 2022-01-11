@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdbool.h>
 
-#ifdef __linux__ 
+#ifdef __linux__
     #define CLEAR "clear"
 #elif _WIN32
     #define CLEAR "cls"
@@ -24,14 +24,14 @@
 
 #define cube_spigol 60.f
 #define vertices_of_cube 8
-#define point_lenght 3 
+#define point_lenght 3
 
 const int default_originX = dimX / 2, default_originY = dimX / 2;
 
 typedef struct Point3D {
     union {
         struct {
-            float x, y, z; 
+            float x, y, z;
         };
         float vec[point_lenght];
     };
@@ -41,7 +41,7 @@ float orthogonalProjectionMatrix[][point_lenght] = {
     {1.f, 0.f, 0.f},
     {0.f, 1.f, 0.f},
     {0.f, 0.f, 0.f},
-}; 
+};
 
 clock_t initTime, oldTime;
 double dt, elapsedTime;
@@ -61,14 +61,14 @@ int main() {
     printf("A rotating cube rendered in 3D with ascii\n");
     char buffer[dimX * dimY];
 
-    bool grid[dimX][dimY]; 
+    bool grid[dimX][dimY];
     float r;
     double angleX = 0.   , angleY = 0.   , angleZ = 0.;
     double angleVelX = 0., angleVelY = 0., angleVelZ = 0.;
 
     printf("Choose the angular velocity x, y, z: (degre/sec)\n");
-    scanf("%lf", &angleVelX ); 
-    scanf("%lf", &angleVelY ); 
+    scanf("%lf", &angleVelX );
+    scanf("%lf", &angleVelY );
     scanf("%lf", &angleVelZ );
 
     angleVelX = angleVelX * pi / 180.;
@@ -135,7 +135,7 @@ void clear(bool grid[dimX][dimY]) {
         for(int x = 0 ; x < dimX ; ++x) {
             grid[x][y] = false;
         }
-    }   
+    }
 }
 
 void render(bool output[dimX][dimY]) {
@@ -154,7 +154,7 @@ void multiplyMatrixMatrix(point_t first[vertices_of_cube], float second[point_le
         for(int j = 0; j < point_lenght; ++j) {
             result[i].vec[j] = 0;
             for(int k = 0; k < point_lenght; ++k) {
-                result[i].vec[j] += first[i].vec[k] * second[k][j]; 
+                result[i].vec[j] += first[i].vec[k] * second[k][j];
             }
         }
     }
@@ -185,23 +185,23 @@ void line(bool grid[dimX][dimY], float ox, float oy, float x1, float y1, float x
 
     float dX = x2 - x1;
     float dY = y2 - y1;
-    
+
     if(abs(dX) > abs(dY)) {
         float m = dY / dX;
         float xi = min(x1, x2); float xf = max(x1, x2);
 
-        for(float x = xi ; x <= xf ; x += 0.1f) {
+        for(float x = xi ; x <= xf ; x += 1.f) {
             float y = m * (x - x1) + y1;
 
             int xp = ox + round(x), yp = (oy + round(y)) * character_ratio;
-            
+
             if(isInRange(xp, yp)) grid[xp][yp] = true;
         }
-    } else {      
+    } else {
         float m = dX / dY;
         float yi = min(y1, y2); float yf = max(y1, y2);
-        
-        for(float y = yi; y <= yf ; y += 0.1) {
+
+        for(float y = yi; y <= yf ; y += 1.f) {
             float x = m * (y - y1) + x1;
 
             int xp = ox + round(x), yp = (oy + round(y)) * character_ratio;
@@ -217,6 +217,7 @@ void calculateTime() {
     dt = (clock() - oldTime) / (double)CLOCKS_PER_SEC;
     oldTime = clock();
 }
+
 /*
                              **************************************************
                             ****                                              ******
